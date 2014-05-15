@@ -33,7 +33,9 @@ class DsspResidue:
 			self.pdbIndex = int(line[6:10])
 			self.chainId = line[11]
 			self.resId = line[13]
-			self.structure = line[15:25]
+			self.ss = line[16]
+			# parse this better
+			self.structure = line[17:25]
 			self.bp1 = int(line[26:29])
 			self.bp2 = int(line[30:33])
 			self.bp2C = line[33]
