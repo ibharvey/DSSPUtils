@@ -70,7 +70,8 @@ class DsspStructure:
 		oneDSSP = open(DsspFile,'r').readlines()
 		
 		# Find index of the start of DSSP per residue data
-		startIndex = next(i for i in range(0,len(oneDSSP)) if '#' in oneDSSP[i]) + 1
+		header =   '#  RESIDUE AA STRUCTURE BP1 BP2  ACC     N-H-->O    O-->H-N    N-H-->O    O-->H-N    TCO  KAPPA ALPHA  PHI   PSI    X-CA   Y-CA   Z-CA'
+		startIndex = next(i for i in range(0,len(oneDSSP)) if header in oneDSSP[i]) + 1
 		
 		# DSSP uses '!*' to demarcate chains
 		# DSSP uses '!' to signify breaks within chains
