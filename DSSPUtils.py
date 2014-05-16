@@ -55,13 +55,14 @@ class DsspResidue:
 			self.zca = float(line[129:])
 		else:
 			raise ValueError("The input DSSP residue format was not 137 characters, can't parse.")
-		
+	
 class DsspChain:
 	def __init__(self, lines):
 		self.residues = []
 		for index in range(0,len(lines)):
 			aRes = DsspResidue(lines[index])
 			self.residues.append(aRes)
+		self.name = self.residues[0].chainId
 
 class DsspStructure:
 	def __init__(self, DsspFile):
@@ -72,7 +73,8 @@ class DsspStructure:
 		startIndex = next(i for i in range(0,len(oneDSSP)) if '#' in oneDSSP[i]) + 1
 		
 		# DSSP uses '!*' to demarcate chains
-		endChainIndeces = [ i for i in range(0,len(oneDSSP)) if '!*' in oneDSSP[i] ]
+		# DSSP uses '!' to signify breaks within chains
+		endChainIndeces = [ i for i in range(0,len(oneDSSP)) if '!' in oneDSSP[i] ]
 		
 		# Array of chains
 		self.chains = []
@@ -85,4 +87,28 @@ class DsspStructure:
 			else:
 				self.chains.append(DsspChain(oneDSSP[startIndex:endChainIndeces[i]]))
 				startIndex = endChainIndeces[i] + 1
-			setattr(self, 'Chain'+chr(65+i), self.chains[i])
+			
+			# Setting individual chain variables
+			
+			# If this chain type is already split into atleast 2, find next number to use
+			if 'Chain'+self.chains[i].name + '1' in self.__dict__.keys():
+				iter = 2
+				while 'Chain'+self.chains[i].name + str(iter) in self.__dict__.keys():
+					iter += 1
+				setattr(self, 'Chain'+self.chains[i].name + str(iter), self.chains[i])
+			
+			# If this is the second occurence of this chain type, split the variable
+			elif 'Chain' + self.chains[i].name in self.__dict__.keys():
+				# Modify the variable named 'ChainX' to 'ChainX1'
+				setattr(self, 'Chain'+self.chains[i].name + '1', getattr(self, 'Chain' + self.chains[i].name))
+				delattr(self, 'Chain'+self.chains[i].name)
+				
+				# Add the new variable as 'ChainX2'
+				setattr(self, 'Chain'+self.chains[i].name + '2', self.chains[i])
+			
+			else:
+				# Don't assume there is a break in a chain
+				setattr(self, 'Chain'+self.chains[i].name, self.chains[i])
+
+
+
