@@ -32,7 +32,8 @@ class DsspResidue:
 			self.dsspIndex = int(line[:5])
 			self.pdbIndex = int(line[6:10])
 			self.chainId = line[11]
-			self.resId = line[13]
+			# If the residue is a lowercase letter, it's a cysteine
+			self.resId = line[13] if not line[13].islower() else 'C'
 			self.ss = line[16]
 			# parse this better
 			self.structure = line[17:25]
